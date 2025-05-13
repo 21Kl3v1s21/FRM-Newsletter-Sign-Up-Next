@@ -21,7 +21,6 @@ type FormData = z.infer<typeof schema>;
 export default function NewsletterForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string>("");
   
   const {
     register,
@@ -39,38 +38,30 @@ export default function NewsletterForm() {
     },
   });
 
-  // components/NewsletterForm.tsx
-const onSubmit: SubmitHandler<FormData> = async (data) => {
-  setIsSubmitting(true);
-  setError("");
-
-  try {
-    const response = await fetch("/api/newsletter", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    setIsSubmitting(true);
     
-    if (!response.ok) {
-      throw new Error(result.error || "Subscription failed");
-    }
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
 
-    setIsSuccess(true);
-    reset();
-  } catch (error) {
-    setError(
-      error instanceof Error 
-        ? error.message 
-        : "Failed to subscribe. Please try again."
-    );
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+      if (!response.ok) {
+        throw new Error("Subscription failed");
+      }
+
+      setIsSuccess(true);
+      reset();
+    } catch (error) {
+      console.error("Subscription error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (isSuccess) {
     return (
@@ -155,6 +146,7 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
           </div>
         </div>
       </div>
+
       <div>
         <button
           type="submit"
@@ -166,9 +158,6 @@ const onSubmit: SubmitHandler<FormData> = async (data) => {
           {isSubmitting ? "Subscribing..." : "Subscribe to newsletter"}
         </button>
       </div>
-      {error && (
-        <div className="mt-2 text-sm text-red-600 text-center">{error}</div>
-      )}
     </form>
   );
-} 
+}
