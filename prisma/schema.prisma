@@ -1,0 +1,21 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql" // or "mysql", "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  confirmed Boolean  @default(false)
+  token     String   @unique @default(cuid())
+  preferences Json?
+}
